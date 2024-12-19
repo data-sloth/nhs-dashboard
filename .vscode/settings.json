@@ -1,0 +1,10 @@
+{
+    "type": "setting",
+    "settings": {
+      "terminal.integrated.shellArgs.windows": [
+        "-NoExit",
+        "-Command",
+        ".venv\\Scripts\\activate"
+      ]
+    }
+}

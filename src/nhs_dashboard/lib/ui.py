@@ -4,7 +4,7 @@ import pydeck
 
 # default view state for pydeck map (centred on UK)
 VIEW_STATE = pydeck.ViewState(
-    latitude=53, longitude=-2, controller=True, zoom=5, pitch=0
+    latitude=53, longitude=-2, controller=True, zoom=6, pitch=0
 )
 
 # grayscale display intensity for NA values (max = 255)

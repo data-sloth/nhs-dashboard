@@ -1,4 +1,5 @@
 import streamlit as st
+from pathlib import Path
 
 from nhs_dashboard.lib import ui, data_proc
 
@@ -6,16 +7,17 @@ from nhs_dashboard.lib import ui, data_proc
 def main():
     st.set_page_config(page_title='NHS dashboard', page_icon=None, layout="wide", initial_sidebar_state="auto", menu_items=None)
 
+    dfs = data_proc.import_data(Path("src/nhs_dashboard/data/csv"), header=1)
 
 
-
-
-    df = data_proc.import_data("src/nhs_dashboard/data/System_October-2024-AE-by-provider-8iWzH-1.csv", header=1)
+    # df = data_proc.import_csv("src/nhs_dashboard/data/System_October-2024-AE-by-provider-8iWzH-1.csv", header=1)
 
     cols = st.columns([3,5,1,3])
 
     with cols[0]:
         st.header("Hello from nhs-dashboard!")
+        month = st.selectbox('Select a month', dfs.keys())
+        df = dfs[month]
         # select features that start with 'Percentage' as options for display
         features = data_proc.select_features(df, '^Percentage')
         display_feature = st.selectbox('Select a feature to display', features.columns)

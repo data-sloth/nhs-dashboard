@@ -13,7 +13,8 @@ def import_data(file_path, header=0):
 
 def simplify_feature_names(df):
     '''
-    Simplify pandas column names for display in UI
+    Simplify pandas column names for display in UI. 
+    Remove spaces and special characters for pydeck compatibility.
     '''
     df.columns = df.columns.str.replace(' ', '')
     df.columns = df.columns.str.replace('<', 'lessthan')

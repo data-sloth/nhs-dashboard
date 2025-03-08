@@ -6,19 +6,27 @@ from nhs_dashboard.lib import ui, data_proc
 def main():
     st.set_page_config(page_title='NHS dashboard', page_icon=None, layout="wide", initial_sidebar_state="auto", menu_items=None)
 
-    st.header("Hello from nhs-dashboard!")
+
+
+
 
     df = data_proc.import_data("src/nhs_dashboard/data/System_October-2024-AE-by-provider-8iWzH-1.csv", header=1)
 
-    # select columns that start with 'Percentage' as options for display
-    features = data_proc.select_features(df, '^Percentage')
-    display_feature = st.selectbox('Select a feature to display', features.columns)
+    cols = st.columns([3,5,1,3])
 
-    tooltip={"text": "{%s},\n {System}" % (display_feature)}
+    with cols[0]:
+        st.header("Hello from nhs-dashboard!")
+        # select features that start with 'Percentage' as options for display
+        features = data_proc.select_features(df, '^Percentage')
+        display_feature = st.selectbox('Select a feature to display', features.columns)
+    
+    with cols[1]:
+        tooltip={"text": "{%s},\n {System}" % (display_feature)}
+        chart, min_val, max_val = ui.pydeck_scatter(df, display_feature, id="rates", tooltip=tooltip)
+        event = st.pydeck_chart(chart, height=800, on_select="rerun", selection_mode="multi-object")
 
-    chart = ui.pydeck_scatter(df, display_feature, id="rates", tooltip=tooltip)
-
-    event = st.pydeck_chart(chart, height=1000, on_select="rerun", selection_mode="multi-object")
+    with cols[2]:
+        ui.plot_color_scale(min_val, max_val, label=display_feature)
 
     event.selection
     

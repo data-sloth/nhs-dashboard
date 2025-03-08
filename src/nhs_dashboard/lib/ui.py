@@ -1,10 +1,15 @@
 # import streamlit as st
 import pandas as pd
 import pydeck
+import matplotlib.pyplot as plt
+from matplotlib.colors import LinearSegmentedColormap
+from matplotlib.colorbar import ColorbarBase
+import streamlit as st
+
 
 # default view state for pydeck map (centred on UK)
 VIEW_STATE = pydeck.ViewState(
-    latitude=53, longitude=-2, controller=True, zoom=6, pitch=0
+    latitude=53, longitude=-2, controller=True, zoom=5.5, pitch=0
 )
 
 # grayscale display intensity for NA values (max = 255)
@@ -38,13 +43,43 @@ def set_color_scale(df, feature, na_value=NA_VALUE, higher_is_better=True):
         
         df[['R', 'G', 'B']] = pd.DataFrame(df[feature].map(calculate_color,).tolist(), index=df.index)
 
+        return min_val, max_val
+
+def plot_color_scale(min_val, max_val, label='Value'):
+    '''
+    Create a red-green colorbar for a color scale from min_val to max_val using matplotlib
+    '''
+
+    fig, ax = plt.subplots(figsize=(0.5, 6))
+    plt.rcParams.update({'font.size': 5})
+
+    # Define a custom colormap from red to green
+    cdict = {
+        'red':   [(0.0, 1.0, 1.0),
+                  (1.0, 0.0, 0.0)],
+
+        'green': [(0.0, 0.0, 0.0),
+                  (1.0, 1.0, 1.0)],
+
+        'blue':  [(0.0, 0.0, 0.0),
+                  (1.0, 0.0, 0.0)]
+    }
+
+    custom_cmap = LinearSegmentedColormap('RedGreen', cdict)
+    norm = plt.Normalize(vmin=min_val, vmax=max_val)
+
+    cb1 = ColorbarBase(ax, cmap=custom_cmap, norm=norm, orientation='vertical')
+    cb1.set_label(label)
+
+    st.pyplot(fig)
+
 def pydeck_scatter(df, display_feature, id, tooltip=None, view_state=VIEW_STATE):
     '''
     Create a pydeck scatterplot from a DataFrame
     '''
 
     # set color scale for display feature
-    set_color_scale(df, display_feature, na_value=NA_VALUE, higher_is_better=True)
+    min_val, max_val = set_color_scale(df, display_feature, na_value=NA_VALUE, higher_is_better=True)
 
     point_layer = pydeck.Layer(
         "ScatterplotLayer",
@@ -67,5 +102,5 @@ def pydeck_scatter(df, display_feature, id, tooltip=None, view_state=VIEW_STATE)
         tooltip=tooltip,
     )
 
-    return chart
+    return chart, min_val, max_val
 
